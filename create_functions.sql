@@ -17,7 +17,6 @@ as $$
 
         raise notice 'Схема: %', p_schema;
         raise notice 'Текст запроса: %', p_text;
-        raise notice E'\n';
         raise notice 'No. Имя объекта           # строки       Текст';
         raise notice '--- -------------------   -------------  --------------------------------------------';
 
@@ -57,7 +56,6 @@ as $$
 
         raise notice 'Схема: %', p_schema;
         raise notice 'Текст запроса: %', p_text;
-        raise notice E'\n';
         raise notice 'No. Имя объекта           # строки       Текст';
         raise notice '--- -------------------   -------------  --------------------------------------------';
 
