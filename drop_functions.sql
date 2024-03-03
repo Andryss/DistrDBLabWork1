@@ -1,1 +1,1 @@
-drop procedure if exists find_text, find_def_text;
+drop procedure if exists find_def_text;
