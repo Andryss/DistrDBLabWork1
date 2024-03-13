@@ -2,24 +2,11 @@
 create or replace procedure find_def_text(p_schema text, p_text text)
     language plpgsql
 as $$
-    declare schema_oid oid; p_schema_split text[]; obj_name text; obj_oid oid; obj_lines text[]; obj_line text; res_num int = 1;
+    declare schema_oid oid; obj_name text; obj_oid oid; obj_lines text[]; obj_line text; res_num int = 1;
     begin
         select trim(p_schema), trim(p_text) into p_schema, p_text;
 
-        if p_schema like '%.%' then
-            select regexp_split_to_array(p_schema, '\.') into p_schema_split;
-            if array_length(p_schema_split, 1) > 2 then
-                raise info 'ERROR: Incorrect scheme format, correct dbName.schemaName or schemaName';
-                return;
-            end if;
-            if p_schema_split[1] != current_database() then
-                raise info 'ERROR: Unknown dbName %', p_schema_split[1];
-                return;
-            end if;
-            select oid from pg_catalog.pg_namespace where nspname = p_schema_split[2] into schema_oid;
-        else
-            select oid from pg_catalog.pg_namespace where nspname = p_schema into schema_oid;
-        end if;
+        select oid from pg_catalog.pg_namespace where nspname = p_schema into schema_oid;
 
         if schema_oid is null then
             raise info 'ERROR: Schema % does not exist', p_schema;
