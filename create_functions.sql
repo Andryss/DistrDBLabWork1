@@ -9,30 +9,34 @@ as $$
         if p_schema like '%.%' then
             select regexp_split_to_array(p_schema, '\.') into p_schema_split;
             if array_length(p_schema_split, 1) > 2 then
-                raise exception 'Incorrect scheme format, correct dbName.schemaName or schemaName';
+                raise info 'ERROR: Incorrect scheme format, correct dbName.schemaName or schemaName';
+                return;
             end if;
             if p_schema_split[1] != current_database() then
-                raise exception 'Unknown dbName ''%''', p_schema_split[1];
+                raise info 'ERROR: Unknown dbName %', p_schema_split[1];
+                return;
             end if;
-            select oid from pg_namespace where nspname = p_schema_split[2] into schema_oid;
+            select oid from pg_catalog.pg_namespace where nspname = p_schema_split[2] into schema_oid;
         else
-            select oid from pg_namespace where nspname = p_schema into schema_oid;
+            select oid from pg_catalog.pg_namespace where nspname = p_schema into schema_oid;
         end if;
 
         if schema_oid is null then
-            raise exception 'Schema ''%'' does not exist', p_schema;
+            raise info 'ERROR: Schema % does not exist', p_schema;
+            return;
         end if;
 
         select btrim(p_text) into p_text;
         if p_text is null or p_text = '' then
-            raise exception 'Search text must be neither null nor blank';
+            raise info 'ERROR: Search text must be neither null nor blank';
+            return;
         end if;
 
         raise info 'No. Имя объекта           # строки       Текст';
         raise info '--- -------------------   -------------  --------------------------------------------';
 
         for obj_oid, obj_name in
-            select oid, proname from pg_proc where pronamespace = schema_oid
+            select oid, proname from pg_catalog.pg_proc where pronamespace = schema_oid
         loop
             select regexp_split_to_array(pg_get_functiondef(obj_oid), '\n') into obj_lines;
             for i in 1 .. array_upper(obj_lines, 1)
@@ -46,7 +50,7 @@ as $$
         end loop;
 
         for obj_oid, obj_name in
-            select pt.oid, pt.tgname from pg_trigger pt join pg_class pc on pt.tgrelid = pc.oid where pc.relnamespace = schema_oid
+            select pt.oid, pt.tgname from pg_catalog.pg_trigger pt join pg_catalog.pg_class pc on pt.tgrelid = pc.oid where pc.relnamespace = schema_oid
         loop
             select regexp_split_to_array(pg_get_triggerdef(obj_oid), '\n') into obj_lines;
             for i in 1 .. array_upper(obj_lines, 1)
