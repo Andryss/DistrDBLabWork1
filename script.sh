@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 psql -h pg -d studs -f ~/create_functions.sql
 
